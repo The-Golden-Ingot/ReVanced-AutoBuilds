@@ -63,7 +63,7 @@ get_arch_specific_apk() {
     if [ ! -f "$config_file" ]; then
         echo "${base_name}.apk"
         return
-    }
+    fi
     
     local arch_pattern=$(jq -r ".obtainium.releaseAssets.architectureMapping.\"$arch\"" "$config_file")
     if [ "$arch_pattern" != "null" ]; then
