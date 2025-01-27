@@ -22,6 +22,59 @@ red_log() {
 
 #################################################
 
+# Obtainium version compatibility check
+check_obtainium_compatibility() {
+    local app_version=$1
+    local config_file="obtainium-config.json"
+    
+    if [ ! -f "$config_file" ]; then
+        red_log "[-] Obtainium config file not found"
+        return 1
+    }
+
+    local min_sdk=$(jq -r '.app.minSdkVersion' "$config_file")
+    local target_sdk=$(jq -r '.app.targetSdkVersion' "$config_file")
+    
+    # Check SDK compatibility
+    if [ "$min_sdk" -gt "$(get_device_sdk)" ]; then
+        red_log "[-] App requires minimum SDK version $min_sdk"
+        return 1
+    fi
+    
+    green_log "[+] SDK compatibility check passed"
+    return 0
+}
+
+# Get device SDK version
+get_device_sdk() {
+    if [ -f "/system/build.prop" ]; then
+        grep "ro.build.version.sdk=" "/system/build.prop" | cut -d'=' -f2
+    else
+        echo "21" # Fallback to minimum supported
+    fi
+}
+
+# Get architecture-specific APK
+get_arch_specific_apk() {
+    local base_name=$1
+    local arch=$2
+    local config_file="obtainium-config.json"
+    
+    if [ ! -f "$config_file" ]; then
+        echo "${base_name}.apk"
+        return
+    }
+    
+    local arch_pattern=$(jq -r ".obtainium.releaseAssets.architectureMapping.\"$arch\"" "$config_file")
+    if [ "$arch_pattern" != "null" ]; then
+        echo "${base_name}${arch_pattern}${version}.apk"
+    else
+        echo "${base_name}.apk"
+    fi
+}
+
+#################################################
+
 # Download Github assets requirement:
 dl_gh() {
 	if [ $3 == "prerelease" ]; then
@@ -284,7 +337,14 @@ patch() {
 		if [ "$3" = inotia ]; then
 			unset CI GITHUB_ACTION GITHUB_ACTIONS GITHUB_ACTOR GITHUB_ENV GITHUB_EVENT_NAME GITHUB_EVENT_PATH GITHUB_HEAD_REF GITHUB_JOB GITHUB_REF GITHUB_REPOSITORY GITHUB_RUN_ID GITHUB_RUN_NUMBER GITHUB_SHA GITHUB_WORKFLOW GITHUB_WORKSPACE RUN_ID RUN_NUMBER
 		fi
-		eval java -jar *cli*.jar $p$b $m$opt --out=./release/$1-$2.apk$excludePatches$includePatches --keystore=./src/$ks.keystore $pu$force $a./download/$1.apk
+
+        # Get version from APK
+        local apk_version=$(aapt dump badging "./download/$1.apk" | grep "versionName" | cut -d"'" -f2)
+        # Clean version string and add to filename
+        local clean_version=$(echo "$apk_version" | tr -d ' ' | sed 's/\./-/g')
+        local output_name="$1-$2-${clean_version}"
+
+		eval java -jar *cli*.jar $p$b $m$opt --out=./release/${output_name}.apk$excludePatches$includePatches --keystore=./src/$ks.keystore $pu$force $a./download/$1.apk
   		unset version
 		unset lock_version
 		unset excludePatches
