@@ -12,60 +12,12 @@ runs:
         [Revanced Extended anddea](https://github.com/anddea/revanced-patches/releases)
         [Revanced Extended for Android 6 & 7](https://github.com/kitadai31/revanced-patches-android6-7/releases)
         [Revanced Extended For Android 5:](https://github.com/d4n3436/revanced-patches-android5/releases)
-
-        **Obtainium Support**
-        This release includes Obtainium compatibility metadata. To add an app:
-
-        1. In Obtainium, tap '+' to add a new app
-        2. Select 'GitHub' as the source type
-        3. Enter this repository URL
-        4. For the APK pattern, use one of:
-
-        YouTube Anddea:
-        - All architectures: \`youtube-(beta-)?anddea-[0-9-]+\.apk\`
-        - ARM64: \`youtube-(beta-)?arm64-v8a-anddea-[0-9-]+\.apk\`
-        - ARM32: \`youtube-(beta-)?armeabi-v7a-anddea-[0-9-]+\.apk\`
-        - x86: \`youtube-(beta-)?x86-anddea-[0-9-]+\.apk\`
-        - x86_64: \`youtube-(beta-)?x86_64-anddea-[0-9-]+\.apk\`
-
-        YouTube ReVanced:
-        - All architectures: \`youtube-(beta-)?revanced-[0-9-]+\.apk\`
-        - ARM64: \`youtube-(beta-)?arm64-v8a-revanced-[0-9-]+\.apk\`
-        - ARM32: \`youtube-(beta-)?armeabi-v7a-revanced-[0-9-]+\.apk\`
-        - x86: \`youtube-(beta-)?x86-revanced-[0-9-]+\.apk\`
-        - x86_64: \`youtube-(beta-)?x86_64-revanced-[0-9-]+\.apk\`
-
-        YouTube ReVanced Extended:
-        - All architectures: \`youtube-(beta-)?revanced-extended-[0-9-]+\.apk\`
-        - ARM64: \`youtube-(beta-)?arm64-v8a-revanced-extended-[0-9-]+\.apk\`
-        - ARM32: \`youtube-(beta-)?armeabi-v7a-revanced-extended-[0-9-]+\.apk\`
-        - x86: \`youtube-(beta-)?x86-revanced-extended-[0-9-]+\.apk\`
-        - x86_64: \`youtube-(beta-)?x86_64-revanced-extended-[0-9-]+\.apk\`
-
-        Notes:
-        - Remove \`(beta-)?\` from patterns if you only want stable versions
-        - The \`[0-9-]+\` part matches the version number (e.g. 18-50-0)
-        - Updates are detected by comparing version numbers in filenames
         "> ${{ github.workspace }}-CHANGELOG.txt
-
-    - name: Collect Obtainium metadata
-      shell: bash
-      run: |
-        if [ -f "obtainium-metadata.json" ]; then
-          echo "
-        **Obtainium Metadata**
-        \`\`\`json
-        $(cat obtainium-metadata.json)
-        \`\`\`
-        " >> ${{ github.workspace }}-CHANGELOG.txt
-        fi
-
     - name: Release
       uses: ncipollo/release-action@v1.14.0
       with:
         artifacts: |
           ./release/*.apk
-          ./obtainium-metadata.json
         name: Revanced & Revanced Extended
         tag: all
         bodyFile: ${{ github.workspace }}-CHANGELOG.txt

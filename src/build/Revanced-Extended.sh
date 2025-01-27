@@ -1,7 +1,6 @@
 #!/bin/bash
 # Revanced Extended build
-SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-source "${SCRIPT_DIR}/utils.sh"
+source src/build/utils.sh
 
 # Download requirements
 dl_gh "revanced-patches revanced-cli" "inotia00" "latest"
