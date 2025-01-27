@@ -1,5 +1,10 @@
 #!/bin/bash
 
+# Add timestamp function at the beginning after shebang
+get_build_timestamp() {
+    date "+%Y%m%d_%H%M%S"
+}
+
 mkdir ./release ./download
 
 #Setup pup for download apk files
@@ -284,7 +289,7 @@ patch() {
 		if [ "$3" = inotia ]; then
 			unset CI GITHUB_ACTION GITHUB_ACTIONS GITHUB_ACTOR GITHUB_ENV GITHUB_EVENT_NAME GITHUB_EVENT_PATH GITHUB_HEAD_REF GITHUB_JOB GITHUB_REF GITHUB_REPOSITORY GITHUB_RUN_ID GITHUB_RUN_NUMBER GITHUB_SHA GITHUB_WORKFLOW GITHUB_WORKSPACE RUN_ID RUN_NUMBER
 		fi
-		eval java -jar *cli*.jar $p$b $m$opt --out=./release/$1-$2.apk$excludePatches$includePatches --keystore=./src/$ks.keystore $pu$force $a./download/$1.apk
+		eval java -jar *cli*.jar $p$b $m$opt --out=./release/$1-$2-$(get_build_timestamp).apk$excludePatches$includePatches --keystore=./src/$ks.keystore $pu$force $a./download/$1.apk
   		unset version
 		unset lock_version
 		unset excludePatches
@@ -346,7 +351,7 @@ split_arch() {
 		$3 \
 		--keystore=./src/_ks.keystore --force \
 		--legacy-options=./src/options/$2.json $excludePatches$includePatches \
-		--out=./release/$1-${archs[i]}-$2.apk\
+		--out=./release/$1-${archs[i]}-$2-$(get_build_timestamp).apk\
 		./download/$1.apk
 	else
 		red_log "[-] Not found $1.apk"
